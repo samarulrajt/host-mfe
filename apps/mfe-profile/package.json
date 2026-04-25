@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "npm run dev:build",
+    "dev": "yarn dev:build",
     "dev:build": "vite build --watch",
     "dev:preview": "vite preview --port 5175 --strictPort",
     "build": "tsc --noEmit && vite build",

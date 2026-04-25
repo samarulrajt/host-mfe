@@ -6,6 +6,7 @@ Use this together with:
 
 - [architecture-implementation-guide.md](./architecture-implementation-guide.md)
 - [implementation-checklist.md](./implementation-checklist.md)
+- [yarn-usage.md](./yarn-usage.md)
 
 ## 1. Deployment model
 
@@ -96,6 +97,8 @@ Recommended approach:
 - use environment variables for remote base URLs
 - build the host with environment-specific values
 - avoid hardcoding local development URLs in production builds
+
+If you need the exact local and CI Yarn commands used by this repository, see [yarn-usage.md](./yarn-usage.md).
 
 Example strategy:
 

@@ -41,7 +41,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
+          cache: yarn
 
       - name: Validate required staging URLs
         run: |
@@ -50,10 +50,10 @@ jobs:
           test -n "$STAGING_PROFILE_REMOTE_URL"
 
       - name: Install dependencies
-        run: npm ci
+        run: yarn install --frozen-lockfile
 
       - name: Build workspace for staging
-        run: npm run build
+        run: yarn build
 
       - name: Upload host artifact
         uses: actions/upload-artifact@v4

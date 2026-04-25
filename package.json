@@ -2,13 +2,14 @@
   "name": "host-mfe-workspace",
   "private": true,
   "version": "1.0.0",
+  "packageManager": "yarn@1.22.22",
   "workspaces": [
     "apps/*"
   ],
   "scripts": {
-    "dev": "npm run build --workspace mfe-catalog && npm run build --workspace mfe-profile && concurrently -n host,catalog-build,catalog-serve,profile-build,profile-serve -c blue,green,green,magenta,magenta \"npm run dev --workspace host\" \"npm run dev:build --workspace mfe-catalog\" \"npm run dev:preview --workspace mfe-catalog\" \"npm run dev:build --workspace mfe-profile\" \"npm run dev:preview --workspace mfe-profile\"",
-    "build": "npm run build --workspaces",
-    "preview:host": "npm run preview --workspace host"
+    "dev": "yarn workspace mfe-catalog build && yarn workspace mfe-profile build && concurrently -n host,catalog-build,catalog-serve,profile-build,profile-serve -c blue,green,green,magenta,magenta \"yarn workspace host dev\" \"yarn workspace mfe-catalog dev:build\" \"yarn workspace mfe-catalog dev:preview\" \"yarn workspace mfe-profile dev:build\" \"yarn workspace mfe-profile dev:preview\"",
+    "build": "yarn workspace host build && yarn workspace mfe-catalog build && yarn workspace mfe-profile build",
+    "preview:host": "yarn workspace host preview"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

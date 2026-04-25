@@ -12,6 +12,8 @@ For testing recommendations, use [docs/testing-strategy-guide.md](docs/testing-s
 
 For automation setup, use [docs/cicd-guide.md](docs/cicd-guide.md), [ci.yml](.github/workflows/ci.yml), [deploy-staging.yml](.github/workflows/deploy-staging.yml), and [deploy-production.yml](.github/workflows/deploy-production.yml).
 
+For day-to-day package manager commands, use [docs/yarn-usage.md](docs/yarn-usage.md).
+
 ## Goal
 
 This project shows how to build a React application where:
@@ -28,7 +30,7 @@ If you want to build the same kind of system for your own project, this README e
 - `apps/host`: the shell application that owns layout, routing, and remote loading
 - `apps/mfe-catalog`: a standalone micro frontend exposed to the host as `catalog/CatalogApp`
 - `apps/mfe-profile`: a standalone micro frontend exposed to the host as `profile/ProfileApp`
-- npm workspaces so everything installs from the root with one command
+- Yarn workspaces so everything installs from the root with one command
 - Vite Module Federation so the host can render MFEs at runtime
 
 ## Architecture
@@ -42,7 +44,7 @@ The host runs on port `5173` and dynamically loads these remotes:
 host-mfe workspace
 │
 ├─ Root workspace
-│  ├─ manages npm workspaces
+│  ├─ manages Yarn workspaces
 │  ├─ installs shared dependencies
 │  └─ starts host + remotes together
 │
@@ -113,7 +115,7 @@ Typical failure points are:
 
 ### 1. Root workspace
 
-The root `package.json` uses npm workspaces:
+The root `package.json` uses Yarn workspaces:
 
 - `apps/*` makes every app under `apps` part of one workspace
 - dependencies are installed from the root
@@ -194,13 +196,13 @@ That guarantees `assets/remoteEntry.js` exists when the host tries to load it.
 ## Install
 
 ```bash
-npm install
+yarn install
 ```
 
 ## Run everything
 
 ```bash
-npm run dev
+yarn dev
 ```
 
 This starts:
@@ -215,7 +217,7 @@ That ensures the host always loads a real `remoteEntry.js` file from the remote 
 ## Build
 
 ```bash
-npm run build
+yarn build
 ```
 
 This builds:
@@ -231,23 +233,23 @@ If you want to work on one piece at a time:
 ### Host only
 
 ```bash
-npm run dev --workspace host
+yarn workspace host dev
 ```
 
 ### Catalog remote only
 
 ```bash
-npm run build --workspace mfe-catalog
-npm run dev:build --workspace mfe-catalog
-npm run dev:preview --workspace mfe-catalog
+yarn workspace mfe-catalog build
+yarn workspace mfe-catalog dev:build
+yarn workspace mfe-catalog dev:preview
 ```
 
 ### Profile remote only
 
 ```bash
-npm run build --workspace mfe-profile
-npm run dev:build --workspace mfe-profile
-npm run dev:preview --workspace mfe-profile
+yarn workspace mfe-profile build
+yarn workspace mfe-profile dev:build
+yarn workspace mfe-profile dev:preview
 ```
 
 ## Project structure
@@ -847,7 +849,7 @@ Usually means one of these:
 
 Fixes:
 
-- run `npm run dev` from the project root
+- run `yarn dev` from the project root
 - wait for the initial remote build to finish
 - make sure ports `5173`, `5174`, and `5175` are free
 - restart the full workspace if needed
@@ -887,6 +889,6 @@ This project works by splitting the app into:
 - one host for shell and routing
 - separate React MFEs for feature ownership
 - module federation for runtime composition
-- npm workspaces for one-repo management
+- Yarn workspaces for one-repo management
 
 If you want to build the same thing again, copy the structure, keep the host/remote boundaries clear, and use the remote build-watch plus preview workflow for local development.

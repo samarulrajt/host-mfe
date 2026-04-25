@@ -8,6 +8,7 @@ Use this together with:
 - [implementation-checklist.md](./implementation-checklist.md)
 - [production-deployment-guide.md](./production-deployment-guide.md)
 - [testing-strategy-guide.md](./testing-strategy-guide.md)
+- [yarn-usage.md](./yarn-usage.md)
 
 ## 1. CI/CD goals
 
@@ -57,7 +58,9 @@ Every pull request or merge build should confirm:
 
 For this repository right now, the strongest existing baseline check is:
 
-- `npm run build`
+- `yarn build`
+
+If you need the exact local and CI Yarn command patterns, see [yarn-usage.md](./yarn-usage.md).
 
 As tests are added later, extend CI to run them before the build stage.
 
@@ -230,8 +233,8 @@ For this repo today, the sample GitHub Actions workflow should:
 
 - run on push and pull request
 - use a Node.js version compatible with the workspace
-- install dependencies with `npm ci`
-- run `npm run build`
+- install dependencies with `yarn install --frozen-lockfile`
+- run `yarn build`
 - make it easy to add tests later
 - upload build artifacts if you want inspectable outputs
 
@@ -324,8 +327,8 @@ Good practice:
 
 For this workspace right now, the minimum useful CI checks are:
 
-- [ ] `npm ci` succeeds
-- [ ] `npm run build` succeeds
+- [ ] `yarn install --frozen-lockfile` succeeds
+- [ ] `yarn build` succeeds
 - [ ] workflow syntax is valid
 - [ ] docs changes do not introduce markdown/editor errors
 

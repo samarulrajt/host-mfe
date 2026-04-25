@@ -4,10 +4,12 @@ Use this checklist when you want to recreate the same host + micro frontend setu
 
 For the full explanation of why each part exists, see [architecture-implementation-guide.md](./architecture-implementation-guide.md).
 
+For the exact Yarn commands used in this repository, see [yarn-usage.md](./yarn-usage.md).
+
 ## 1. Decide the project structure
 
 - [ ] Use one repository for host and all micro frontends.
-- [ ] Use npm workspaces so every app installs from the root.
+- [ ] Use Yarn workspaces so every app installs from the root.
 - [ ] Keep apps under `apps/*`.
 - [ ] Keep shared contracts and utilities in a top-level `shared/` folder.
 
@@ -40,6 +42,10 @@ What the root should own:
 - cross-app scripts
 - shared TypeScript defaults
 - top-level documentation
+
+Practical command reference:
+
+- use [yarn-usage.md](./yarn-usage.md) for the exact install, dev, build, and per-workspace commands used by this repo
 
 ## 3. Build the host app
 

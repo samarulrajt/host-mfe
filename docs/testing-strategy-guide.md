@@ -7,10 +7,14 @@ Use this together with:
 - [architecture-implementation-guide.md](./architecture-implementation-guide.md)
 - [implementation-checklist.md](./implementation-checklist.md)
 - [production-deployment-guide.md](./production-deployment-guide.md)
+- [yarn-usage.md](./yarn-usage.md)
 
 ## 1. Testing goals
 
 A micro frontend system needs to prove more than component rendering.
+
+For the exact workspace and CI command patterns used in this repository, see [yarn-usage.md](./yarn-usage.md).
+
 You need confidence in:
 
 - host shell behavior

@@ -21,16 +21,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
+          cache: yarn
 
       - name: Install dependencies
-        run: npm ci
+        run: yarn install --frozen-lockfile
 
       - name: Build workspace
-        run: npm run build
+        run: yarn build
 
       - name: Placeholder for future tests
-        run: echo "Add npm test or package-level test commands here when the repo has automated tests."
+        run: echo "Add yarn test or workspace-level test commands here when the repo has automated tests."
 
       - name: Upload host build artifact
         if: always()

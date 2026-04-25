@@ -4,6 +4,8 @@ This document explains the architecture, implementation choices, and runtime log
 
 Use it as a blueprint if you want to build the same kind of system in another project.
 
+For the day-to-day command reference for this repository, also see [yarn-usage.md](./yarn-usage.md).
+
 ## 1. What this project is
 
 This repository contains one React host application and two React micro frontends (MFEs):
@@ -14,7 +16,7 @@ This repository contains one React host application and two React micro frontend
 
 The host renders the application shell and loads the MFEs at runtime through module federation.
 
-All apps live in the same repository and are managed with npm workspaces.
+All apps live in the same repository and are managed with Yarn workspaces.
 
 ## 2. High-level architecture
 
@@ -86,14 +88,16 @@ This pattern is useful when:
 - you want to deploy or evolve features somewhat independently
 - you want one shared shell experience with multiple separately owned modules
 
-### Why use npm workspaces
+### Why use Yarn workspaces
 
-npm workspaces make it easy to:
+Yarn workspaces make it easy to:
 
 - install shared dependencies once
 - run all apps from the root
 - share internal code through the `shared` folder
 - keep everything in one repository
+
+If you want the exact root and per-app commands used in this repository, see [yarn-usage.md](./yarn-usage.md).
 
 ### Why use module federation
 
