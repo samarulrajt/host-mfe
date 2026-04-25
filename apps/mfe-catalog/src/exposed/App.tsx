@@ -1,30 +1,28 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import '../styles.css';
-import { emitToastShow, subscribeAuthChanged, subscribeThemeChanged, useOptionalAuth, type AuthChangedDetail, type RemoteAppProps, type ThemeMode } from '../../../../shared';
-
-const products = [
-  {
-    name: 'Starter analytics kit for React',
-    price: '$29',
-    summary: 'Prebuilt charts and dashboards you can plug into the shell.',
-  },
-  {
-    name: 'Team workspace pack',
-    price: '$79',
-    summary: 'Shared navigation patterns and reusable collaboration widgets.',
-  },
-  {
-    name: 'Enterprise federation bundle',
-    price: '$149',
-    summary: 'A larger feature slice built to prove remote composition at scale.',
-  },
-];
+import {
+  emitToastShow,
+  getApiMode,
+  listCatalogProducts,
+  subscribeAuthChanged,
+  subscribeThemeChanged,
+  useOptionalAuth,
+  type ApiMode,
+  type AuthChangedDetail,
+  type CatalogProduct,
+  type RemoteAppProps,
+  type ThemeMode,
+} from '../../../../shared';
 
 export default function CatalogApp({ standalone = false, currentUser: currentUserProp, onNavigate }: RemoteAppProps) {
   const auth = useOptionalAuth();
   const currentUser = auth?.currentUser ?? currentUserProp ?? null;
   const isAuthenticated = auth?.isAuthenticated ?? Boolean(currentUser);
+  const [apiMode] = useState<ApiMode>(() => getApiMode());
   const [theme, setTheme] = useState<ThemeMode>('dark');
+  const [products, setProducts] = useState<CatalogProduct[]>([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const [productsError, setProductsError] = useState<string | null>(null);
   const [authEvent, setAuthEvent] = useState<AuthChangedDetail>({
     isAuthenticated,
     userName: currentUser?.name ?? null,
@@ -33,6 +31,24 @@ export default function CatalogApp({ standalone = false, currentUser: currentUse
 
   useEffect(() => subscribeThemeChanged(setTheme), []);
   useEffect(() => subscribeAuthChanged(setAuthEvent), []);
+
+  const loadProducts = useCallback(async () => {
+    setIsLoadingProducts(true);
+    setProductsError(null);
+
+    try {
+      const nextProducts = await listCatalogProducts();
+      setProducts(nextProducts);
+    } catch (error) {
+      setProductsError(error instanceof Error ? error.message : 'Unable to load catalog products.');
+    } finally {
+      setIsLoadingProducts(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadProducts();
+  }, [loadProducts]);
 
   return (
     <section className={standalone ? 'mfe-surface mfe-standalone' : 'mfe-surface'}>
@@ -46,6 +62,7 @@ export default function CatalogApp({ standalone = false, currentUser: currentUse
               ? `Signed in as ${currentUser.name} from ${currentUser.organization}.`
               : 'Running with local standalone state.'}
           </p>
+          <p className="mfe-api-copy">API mode: {apiMode === 'mock' ? 'mocked local data' : 'remote backend'}</p>
           <p className="mfe-theme-copy">Received theme event: {theme}</p>
           <p className="mfe-auth-copy">
             Received auth event: {authEvent.isAuthenticated ? `signed in as ${authEvent.userName}` : 'signed out'} via {authEvent.source}
@@ -68,15 +85,31 @@ export default function CatalogApp({ standalone = false, currentUser: currentUse
         </button>
       </div>
 
-      <div className="catalog-grid">
-        {products.map((product) => (
-          <article key={product.name} className="catalog-card">
-            <strong>{product.name}</strong>
-            <p>{product.summary}</p>
-            <span>{product.price}</span>
-          </article>
-        ))}
-      </div>
+      {isLoadingProducts ? <div className="catalog-state">Loading catalog products…</div> : null}
+
+      {productsError ? (
+        <div className="catalog-state catalog-state-error">
+          <p>{productsError}</p>
+          <button type="button" className="catalog-inline-button" onClick={() => void loadProducts()}>
+            Retry
+          </button>
+        </div>
+      ) : null}
+
+      {!isLoadingProducts && !productsError ? (
+        <div className="catalog-grid">
+          {products.map((product) => (
+            <article key={product.id} className="catalog-card">
+              <div className="catalog-card-header">
+                <strong>{product.name}</strong>
+                <span className={`catalog-status catalog-status-${product.status}`}>{product.status}</span>
+              </div>
+              <p>{product.summary}</p>
+              <span>{product.price}</span>
+            </article>
+          ))}
+        </div>
+      ) : null}
     </section>
   );
 }

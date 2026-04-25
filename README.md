@@ -226,6 +226,37 @@ This builds:
 - the catalog MFE
 - the profile MFE
 
+## Test
+
+```bash
+yarn test
+```
+
+This runs the current Vitest suites for:
+
+- shared API behavior and mock/remote mode helpers
+- host shell UI rendering, API mode banners, developer settings, toast handling, remote loading fallbacks, and remote error boundaries
+- catalog remote success, host callback, and retry-after-error flows
+- profile remote success, host callback, sign-out, and retry-after-error flows
+
+For the full validation pass used during local verification and CI, run:
+
+```bash
+yarn test && yarn build
+```
+
+That combination proves both the runtime bundles and the current component-level UI coverage remain healthy.
+
+## Quality checks
+
+Use these commands as the standard local quality loop:
+
+- `yarn install` to sync all workspace dependencies from the root
+- `yarn dev` to run the host with both remotes in integrated development mode
+- `yarn test` to run shared, host, and remote UI test coverage
+- `yarn build` to verify all three apps compile for production
+- `yarn test && yarn build` before merging larger changes or updating CI-sensitive areas
+
 ## Run apps individually
 
 If you want to work on one piece at a time:

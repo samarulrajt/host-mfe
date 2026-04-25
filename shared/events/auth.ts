@@ -1,7 +1,9 @@
+import type { AuthSource } from '../contracts';
+
 export type AuthChangedDetail = {
   isAuthenticated: boolean;
   userName: string | null;
-  source: 'host' | 'standalone';
+  source: AuthSource;
 };
 
 const AUTH_CHANGED_EVENT = 'auth:changed';

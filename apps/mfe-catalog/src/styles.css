@@ -49,6 +49,12 @@
   color: #475569;
 }
 
+.mfe-api-copy {
+  margin: 0.35rem 0 0;
+  color: #7c3aed;
+  font-weight: 600;
+}
+
 .mfe-theme-copy {
   margin: 0.35rem 0 0;
   color: #0369a1;
@@ -77,11 +83,73 @@
   gap: 1rem;
 }
 
+.catalog-state {
+  padding: 1rem 1.1rem;
+  border-radius: 1rem;
+  background: #f8fafc;
+  border: 1px dashed rgba(14, 116, 144, 0.2);
+  color: #334155;
+}
+
+.catalog-state-error {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  border-style: solid;
+  border-color: rgba(220, 38, 38, 0.18);
+  background: rgba(254, 242, 242, 0.96);
+  color: #991b1b;
+}
+
+.catalog-inline-button {
+  font: inherit;
+  border: none;
+  border-radius: 999px;
+  padding: 0.7rem 1rem;
+  color: #fff;
+  background: #0f172a;
+  cursor: pointer;
+}
+
 .catalog-card {
   padding: 1.2rem;
   border-radius: 1rem;
   background: #f8fafc;
   border: 1px solid rgba(14, 165, 233, 0.14);
+}
+
+.catalog-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.catalog-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  text-transform: capitalize;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.catalog-status-available {
+  color: #0369a1;
+  background: rgba(14, 165, 233, 0.12);
+}
+
+.catalog-status-beta {
+  color: #7c3aed;
+  background: rgba(124, 58, 237, 0.12);
+}
+
+.catalog-status-enterprise {
+  color: #0f766e;
+  background: rgba(13, 148, 136, 0.12);
 }
 
 .catalog-card p {

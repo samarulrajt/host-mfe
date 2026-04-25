@@ -1,11 +1,13 @@
+import React from 'react';
 import { createContext, useContext, useEffect, type ReactNode } from 'react';
 import { emitAuthChanged } from '../eventBus';
-import type { AuthUser } from '../contracts/auth';
+import type { AuthSource, AuthUser } from '../contracts/auth';
 
 type AuthContextValue = {
   currentUser: AuthUser | null;
   isAuthenticated: boolean;
   signOut: () => void;
+  source: AuthSource;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -13,7 +15,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 type AuthProviderProps = {
   currentUser: AuthUser | null;
   signOut: () => void;
-  source?: 'host' | 'standalone';
+  source?: AuthSource;
   children: ReactNode;
 };
 
@@ -32,6 +34,7 @@ export function AuthProvider({ currentUser, signOut, source = 'host', children }
         currentUser,
         isAuthenticated: Boolean(currentUser),
         signOut,
+        source,
       }}
     >
       {children}

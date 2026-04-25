@@ -31,6 +31,23 @@ yarn install
 
 This creates or updates the workspace dependency tree using [yarn.lock](../yarn.lock).
 
+## 2.1 Local API mode
+
+This repository now defaults to mocked API responses in local development.
+
+That means you can keep building the host and remotes even if staging or production APIs are unavailable.
+
+Default behavior:
+
+- if `VITE_API_MODE` is not set, remotes use `mock`
+- mock mode returns fixture-backed catalog and profile data locally
+- remote mode calls a real backend using `VITE_API_BASE_URL`
+
+To point a remote at a real backend later, create `.env.local` inside that app and use the example in:
+
+- [apps/mfe-catalog/.env.example](../apps/mfe-catalog/.env.example)
+- [apps/mfe-profile/.env.example](../apps/mfe-profile/.env.example)
+
 ## 3. Root commands
 
 Run these from the repository root.
@@ -58,6 +75,18 @@ This builds:
 - `apps/host`
 - `apps/mfe-catalog`
 - `apps/mfe-profile`
+
+### Run the shared test suite
+
+```bash
+yarn test
+```
+
+Use watch mode while iterating on shared logic:
+
+```bash
+yarn test:watch
+```
 
 ### Preview the host only
 
@@ -122,12 +151,20 @@ Typical CI commands are:
 
 ```bash
 yarn install --frozen-lockfile
+yarn test
 yarn build
+```
+
+For the same full validation flow locally, use:
+
+```bash
+yarn test && yarn build
 ```
 
 ## 8. Common command conversions
 
-If you are used to npm, use this mapping:
+If you are used to npm, use this mapping.
+These npm commands are migration references only; the repository itself should be operated with Yarn commands.
 
 | npm | Yarn |
 | --- | --- |
@@ -144,6 +181,8 @@ If you are used to npm, use this mapping:
 ### `yarn: command not found`
 
 Install Yarn first.
+
+This is the one place where using an npm command is expected, because it bootstraps Yarn itself.
 
 Example:
 
@@ -172,6 +211,12 @@ Check these in order:
 - wait for the initial remote builds to complete
 - confirm ports `5173`, `5174`, and `5175` are free
 - verify the host is pointing to the correct remote URLs
+
+### Real backend is unavailable
+
+Stay in mock mode.
+
+That is the default local setup in this repository, and it is meant to unblock UI development when staging or production APIs cannot be reached.
 
 ## 10. Recommended team rule
 

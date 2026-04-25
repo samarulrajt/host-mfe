@@ -3,5 +3,6 @@
   "compilerOptions": {
     "types": ["vite/client"]
   },
-  "include": ["src", "../../shared"]
+  "include": ["src", "../../shared"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx"]
 }

@@ -1,18 +1,28 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import '../styles.css';
-import { emitToastShow, subscribeAuthChanged, subscribeThemeChanged, useOptionalAuth, type AuthChangedDetail, type RemoteAppProps, type ThemeMode } from '../../../../shared';
-
-const activity = [
-  'Invited 3 new teammates to the workspace and assigned roles',
-  'Published a dashboard widget to the host shell catalog',
-  'Reviewed the latest remote deployment status and logs within the profile',
-];
+import {
+  emitToastShow,
+  getApiMode,
+  getProfileSummary,
+  subscribeAuthChanged,
+  subscribeThemeChanged,
+  useOptionalAuth,
+  type ApiMode,
+  type AuthChangedDetail,
+  type ProfileSummary,
+  type RemoteAppProps,
+  type ThemeMode,
+} from '../../../../shared';
 
 export default function ProfileApp({ standalone = false, currentUser: currentUserProp, onNavigate, onSignOut }: RemoteAppProps) {
   const auth = useOptionalAuth();
   const currentUser = auth?.currentUser ?? currentUserProp ?? null;
   const signOut = auth?.signOut ?? onSignOut ?? (() => undefined);
+  const [apiMode] = useState<ApiMode>(() => getApiMode());
   const [theme, setTheme] = useState<ThemeMode>('dark');
+  const [profileSummary, setProfileSummary] = useState<ProfileSummary | null>(null);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+  const [profileError, setProfileError] = useState<string | null>(null);
   const [authEvent, setAuthEvent] = useState<AuthChangedDetail>({
     isAuthenticated: Boolean(currentUser),
     userName: currentUser?.name ?? null,
@@ -22,13 +32,31 @@ export default function ProfileApp({ standalone = false, currentUser: currentUse
   useEffect(() => subscribeThemeChanged(setTheme), []);
   useEffect(() => subscribeAuthChanged(setAuthEvent), []);
 
+  const loadProfileSummary = useCallback(async () => {
+    setIsLoadingProfile(true);
+    setProfileError(null);
+
+    try {
+      const nextSummary = await getProfileSummary(currentUser);
+      setProfileSummary(nextSummary);
+    } catch (error) {
+      setProfileError(error instanceof Error ? error.message : 'Unable to load profile summary.');
+    } finally {
+      setIsLoadingProfile(false);
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
+    void loadProfileSummary();
+  }, [loadProfileSummary]);
+
   return (
     <section className={standalone ? 'profile-surface profile-standalone' : 'profile-surface'}>
       {standalone ? <span className="profile-badge">Running standalone</span> : <span className="profile-badge">Mounted by host</span>}
       <div className="profile-grid">
         <article className="profile-card hero-card">
           <p className="profile-label">Profile micro frontend</p>
-          <h1>{currentUser ? `${currentUser.name}, your workspace is healthy.` : 'Samar, your workspace is healthy.'}</h1>
+          <h1>{profileSummary?.greeting ?? (currentUser ? `${currentUser.name}, your workspace is healthy.` : 'Workspace state is loading.')}</h1>
           <p>
             This remote owns user-specific content while the host keeps the shared app chrome stable.
           </p>
@@ -37,10 +65,20 @@ export default function ProfileApp({ standalone = false, currentUser: currentUse
               Active roles: {currentUser.roles.join(', ')} · Organization: {currentUser.organization}
             </p>
           ) : null}
+          <p className="profile-api-copy">API mode: {apiMode === 'mock' ? 'mocked local data' : 'remote backend'}</p>
           <p className="profile-theme-copy">Received theme event: {theme}</p>
           <p className="profile-auth-copy">
             Received auth event: {authEvent.isAuthenticated ? `signed in as ${authEvent.userName}` : 'signed out'} via {authEvent.source}
           </p>
+          {profileError ? (
+            <div className="profile-state profile-state-error">
+              <p>{profileError}</p>
+              <button type="button" onClick={() => void loadProfileSummary()}>
+                Retry summary
+              </button>
+            </div>
+          ) : null}
+          {isLoadingProfile ? <div className="profile-state">Loading profile summary…</div> : null}
           {!standalone ? (
             <div className="profile-actions">
               <button
@@ -79,15 +117,15 @@ export default function ProfileApp({ standalone = false, currentUser: currentUse
           <dl>
             <div>
               <dt>Region</dt>
-              <dd>ap-south-1</dd>
+              <dd>{profileSummary?.deployment.region ?? '—'}</dd>
             </div>
             <div>
               <dt>Release</dt>
-              <dd>2026.04.25</dd>
+              <dd>{profileSummary?.deployment.release ?? '—'}</dd>
             </div>
             <div>
               <dt>Status</dt>
-              <dd>Ready</dd>
+              <dd>{profileSummary?.deployment.status ?? 'Loading'}</dd>
             </div>
           </dl>
         </article>
@@ -95,7 +133,7 @@ export default function ProfileApp({ standalone = false, currentUser: currentUse
         <article className="profile-card activity-card">
           <h2>Recent activity</h2>
           <ul>
-            {activity.map((item) => (
+            {(profileSummary?.recentActivity ?? []).map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>

@@ -1,23 +1,52 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import { AuthProvider, type AuthUser } from '../../../shared';
+import { AuthProvider, BootstrapScreen, getAuthSession } from '../../../shared';
 import App from './App';
 import './app.css';
 
-const currentUser: AuthUser = {
-  id: 'user-001',
-  name: 'Samar Ulraj',
-  roles: ['admin', 'editor'],
-  organization: 'Host MFE Labs',
-};
+const futureRouterConfig = {
+  v7_startTransition: true,
+  v7_relativeSplatPath: true,
+} as const;
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+const root = ReactDOM.createRoot(document.getElementById('root')!);
+
+root.render(
   <React.StrictMode>
-    <AuthProvider currentUser={currentUser} signOut={() => window.location.assign('/')} source="host">
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </AuthProvider>
+    <BootstrapScreen
+      product="host"
+      title="Preparing host shell"
+      message="Resolving the initial auth session and workspace state before the shell mounts."
+    />
   </React.StrictMode>,
 );
+
+async function bootstrap() {
+  try {
+    const session = await getAuthSession('host');
+
+    root.render(
+      <React.StrictMode>
+        <AuthProvider currentUser={session.currentUser} signOut={() => window.location.assign('/')} source={session.source}>
+          <BrowserRouter future={futureRouterConfig}>
+            <App />
+          </BrowserRouter>
+        </AuthProvider>
+      </React.StrictMode>,
+    );
+  } catch (error) {
+    root.render(
+      <React.StrictMode>
+        <BootstrapScreen
+          tone="error"
+          product="host"
+          title="Unable to start host shell"
+          message={error instanceof Error ? error.message : 'The initial auth session could not be loaded.'}
+        />
+      </React.StrictMode>,
+    );
+  }
+}
+
+void bootstrap();

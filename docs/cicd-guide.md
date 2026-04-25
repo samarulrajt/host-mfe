@@ -60,6 +60,10 @@ For this repository right now, the strongest existing baseline check is:
 
 - `yarn build`
 
+The current shared API test baseline is:
+
+- `yarn test`
+
 If you need the exact local and CI Yarn command patterns, see [yarn-usage.md](./yarn-usage.md).
 
 As tests are added later, extend CI to run them before the build stage.
@@ -234,11 +238,11 @@ For this repo today, the sample GitHub Actions workflow should:
 - run on push and pull request
 - use a Node.js version compatible with the workspace
 - install dependencies with `yarn install --frozen-lockfile`
+- run `yarn test`
 - run `yarn build`
-- make it easy to add tests later
 - upload build artifacts if you want inspectable outputs
 
-Because this repo currently validates with build success, the workflow should keep that as the baseline gate.
+Because this repo now includes shared API tests, CI should keep `yarn test` and `yarn build` as the baseline gates.
 
 ## 12. What the sample deploy workflows do now
 
@@ -328,6 +332,7 @@ Good practice:
 For this workspace right now, the minimum useful CI checks are:
 
 - [ ] `yarn install --frozen-lockfile` succeeds
+- [ ] `yarn test` succeeds
 - [ ] `yarn build` succeeds
 - [ ] workflow syntax is valid
 - [ ] docs changes do not introduce markdown/editor errors

@@ -50,6 +50,30 @@
   margin-top: 1rem;
 }
 
+.profile-api-copy {
+  margin: 0.35rem 0 0;
+  color: #f0abfc;
+  font-weight: 600;
+}
+
+.profile-state {
+  margin-top: 0.9rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.9rem;
+  background: rgba(30, 41, 59, 0.95);
+  border: 1px dashed rgba(148, 163, 184, 0.24);
+}
+
+.profile-state-error {
+  border-style: solid;
+  border-color: rgba(248, 113, 113, 0.34);
+  background: rgba(69, 10, 10, 0.42);
+}
+
+.profile-state button {
+  margin-top: 0.75rem;
+}
+
 .profile-theme-copy {
   margin: 0.75rem 0 0;
   color: #c4b5fd;

@@ -99,6 +99,22 @@ Yarn workspaces make it easy to:
 
 If you want the exact root and per-app commands used in this repository, see [yarn-usage.md](./yarn-usage.md).
 
+## 4.1 How local development works without backend access
+
+One of the common micro frontend problems is that frontend teams cannot always reach staging or production APIs during local development.
+
+This repository handles that by keeping feature data behind a shared API layer and defaulting local development to mocked responses.
+
+The pattern is:
+
+- remotes call shared API helpers instead of scattering raw `fetch` calls through feature components
+- shared domain adapters are split by concern such as auth, catalog, and profile
+- the API layer reads `VITE_API_MODE`
+- `mock` mode returns local fixture-backed data
+- `remote` mode calls a real backend through `VITE_API_BASE_URL`
+
+This keeps local UI work unblocked while still preserving a clean switch to real integrations.
+
 ### Why use module federation
 
 Module federation lets the host import remote modules at runtime instead of bundling everything into one single app ahead of time.

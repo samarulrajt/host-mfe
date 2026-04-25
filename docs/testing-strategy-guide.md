@@ -94,6 +94,12 @@ Useful component-level assertions:
 - hides or shows states correctly
 - applies mounted-mode versus standalone-mode behavior correctly
 
+Current examples in this workspace:
+
+- host UI tests cover shell rendering, API mode panels, developer settings, toast rendering, remote suspense fallback, and remote error boundary behavior
+- catalog UI tests cover authenticated mounted-mode rendering, host navigation callback behavior, and retry after a failed product request
+- profile UI tests cover authenticated mounted-mode rendering, host navigation/sign-out callbacks, and retry after a failed summary request
+
 ## 5. Contract tests
 
 Contract tests are especially important in host/MFE systems.
@@ -139,6 +145,12 @@ Examples:
 - assert the host renders fallback while the remote loads
 - simulate a remote toast event and assert the host UI shows the message
 - simulate a theme change and assert the remote reacts to the new theme state
+
+Current workspace coverage already includes:
+
+- host integration-style UI tests using injected remote components and shared auth provider wiring
+- remote callback assertions for `onNavigate` and sign-out flows
+- retry assertions that prove failed async fetches can recover without remounting the entire app
 
 ## 7. End-to-end tests
 
@@ -195,6 +207,12 @@ Host expectations:
 - error boundary displays fallback UI
 - failure does not crash unrelated routes
 - failure can be logged/monitored
+
+Current workspace coverage includes both host-side failure rendering and remote-side retry recovery:
+
+- the host test suite verifies suspense fallback and remote render failure fallback
+- catalog tests verify a failed product request can be retried successfully
+- profile tests verify a failed summary request can be retried successfully
 
 ## 10. CSS isolation tests
 
