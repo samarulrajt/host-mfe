@@ -1,0 +1,146 @@
+name: Deploy Staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      staging_host_url:
+        description: Public staging host URL
+        required: true
+        type: string
+      staging_catalog_remote_url:
+        description: Public staging catalog remoteEntry.js URL
+        required: true
+        type: string
+      staging_profile_remote_url:
+        description: Public staging profile remoteEntry.js URL
+        required: true
+        type: string
+
+concurrency:
+  group: staging-deploy
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: 20
+  VITE_CATALOG_REMOTE_URL: ${{ inputs.staging_catalog_remote_url }}
+  VITE_PROFILE_REMOTE_URL: ${{ inputs.staging_profile_remote_url }}
+  STAGING_HOST_URL: ${{ inputs.staging_host_url }}
+  STAGING_CATALOG_REMOTE_URL: ${{ inputs.staging_catalog_remote_url }}
+  STAGING_PROFILE_REMOTE_URL: ${{ inputs.staging_profile_remote_url }}
+
+jobs:
+  build:
+    name: Build staging artifacts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Validate required staging URLs
+        run: |
+          test -n "$STAGING_HOST_URL"
+          test -n "$STAGING_CATALOG_REMOTE_URL"
+          test -n "$STAGING_PROFILE_REMOTE_URL"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build workspace for staging
+        run: npm run build
+
+      - name: Upload host artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: host-dist-staging
+          path: apps/host/dist
+
+      - name: Upload catalog artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mfe-catalog-dist-staging
+          path: apps/mfe-catalog/dist
+
+      - name: Upload profile artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mfe-profile-dist-staging
+          path: apps/mfe-profile/dist
+
+  deploy-remotes:
+    name: Deploy staging remotes
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download catalog artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: mfe-catalog-dist-staging
+          path: artifacts/mfe-catalog
+
+      - name: Download profile artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: mfe-profile-dist-staging
+          path: artifacts/mfe-profile
+
+      - name: Placeholder deploy catalog remote
+        run: |
+          echo "Deploy artifacts/mfe-catalog to your staging catalog host"
+          echo "Expected remote URL: $STAGING_CATALOG_REMOTE_URL"
+
+      - name: Placeholder deploy profile remote
+        run: |
+          echo "Deploy artifacts/mfe-profile to your staging profile host"
+          echo "Expected remote URL: $STAGING_PROFILE_REMOTE_URL"
+
+  verify-remotes:
+    name: Verify staging remotes
+    needs: deploy-remotes
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Verify catalog remote entry
+        run: curl --fail --silent --show-error "$STAGING_CATALOG_REMOTE_URL" > /dev/null
+
+      - name: Verify profile remote entry
+        run: curl --fail --silent --show-error "$STAGING_PROFILE_REMOTE_URL" > /dev/null
+
+  deploy-host:
+    name: Deploy staging host
+    needs: verify-remotes
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download host artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: host-dist-staging
+          path: artifacts/host
+
+      - name: Placeholder deploy host
+        run: |
+          echo "Deploy artifacts/host to your staging host platform"
+          echo "Expected host URL: $STAGING_HOST_URL"
+
+  smoke-test:
+    name: Smoke test staging host
+    needs: deploy-host
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Verify staging home
+        run: curl --fail --silent --show-error "$STAGING_HOST_URL" > /dev/null
+
+      - name: Verify staging catalog route
+        run: curl --fail --silent --show-error "$STAGING_HOST_URL/catalog" > /dev/null
+
+      - name: Verify staging profile route
+        run: curl --fail --silent --show-error "$STAGING_HOST_URL/profile" > /dev/null

@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build workspace
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build workspace
+        run: npm run build
+
+      - name: Placeholder for future tests
+        run: echo "Add npm test or package-level test commands here when the repo has automated tests."
+
+      - name: Upload host build artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: host-dist
+          path: apps/host/dist
+          if-no-files-found: ignore
+
+      - name: Upload catalog build artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mfe-catalog-dist
+          path: apps/mfe-catalog/dist
+          if-no-files-found: ignore
+
+      - name: Upload profile build artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mfe-profile-dist
+          path: apps/mfe-profile/dist
+          if-no-files-found: ignore

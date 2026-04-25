@@ -1,0 +1,160 @@
+name: Deploy Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_ref:
+        description: Git ref to deploy
+        required: false
+        default: main
+        type: string
+      production_host_url:
+        description: Public production host URL
+        required: true
+        type: string
+      production_catalog_remote_url:
+        description: Public production catalog remoteEntry.js URL
+        required: true
+        type: string
+      production_profile_remote_url:
+        description: Public production profile remoteEntry.js URL
+        required: true
+        type: string
+      confirm_production_deploy:
+        description: Type APPROVE to continue the production deployment
+        required: true
+        type: string
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: 20
+  VITE_CATALOG_REMOTE_URL: ${{ inputs.production_catalog_remote_url }}
+  VITE_PROFILE_REMOTE_URL: ${{ inputs.production_profile_remote_url }}
+  PRODUCTION_HOST_URL: ${{ inputs.production_host_url }}
+  PRODUCTION_CATALOG_REMOTE_URL: ${{ inputs.production_catalog_remote_url }}
+  PRODUCTION_PROFILE_REMOTE_URL: ${{ inputs.production_profile_remote_url }}
+
+jobs:
+  build:
+    name: Build production artifacts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Validate required production URLs
+        run: |
+          test "$GITHUB_EVENT_INPUTS_CONFIRM_PRODUCTION_DEPLOY" = "APPROVE"
+          test -n "$PRODUCTION_HOST_URL"
+          test -n "$PRODUCTION_CATALOG_REMOTE_URL"
+          test -n "$PRODUCTION_PROFILE_REMOTE_URL"
+        env:
+          GITHUB_EVENT_INPUTS_CONFIRM_PRODUCTION_DEPLOY: ${{ inputs.confirm_production_deploy }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build workspace for production
+        run: npm run build
+
+      - name: Upload host artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: host-dist-production
+          path: apps/host/dist
+
+      - name: Upload catalog artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mfe-catalog-dist-production
+          path: apps/mfe-catalog/dist
+
+      - name: Upload profile artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mfe-profile-dist-production
+          path: apps/mfe-profile/dist
+
+  deploy-remotes:
+    name: Deploy production remotes
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download catalog artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: mfe-catalog-dist-production
+          path: artifacts/mfe-catalog
+
+      - name: Download profile artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: mfe-profile-dist-production
+          path: artifacts/mfe-profile
+
+      - name: Placeholder deploy catalog remote
+        run: |
+          echo "Deploy artifacts/mfe-catalog to your production catalog host"
+          echo "Expected remote URL: $PRODUCTION_CATALOG_REMOTE_URL"
+
+      - name: Placeholder deploy profile remote
+        run: |
+          echo "Deploy artifacts/mfe-profile to your production profile host"
+          echo "Expected remote URL: $PRODUCTION_PROFILE_REMOTE_URL"
+
+  verify-remotes:
+    name: Verify production remotes
+    needs: deploy-remotes
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Verify catalog remote entry
+        run: curl --fail --silent --show-error "$PRODUCTION_CATALOG_REMOTE_URL" > /dev/null
+
+      - name: Verify profile remote entry
+        run: curl --fail --silent --show-error "$PRODUCTION_PROFILE_REMOTE_URL" > /dev/null
+
+  deploy-host:
+    name: Deploy production host
+    needs: verify-remotes
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download host artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: host-dist-production
+          path: artifacts/host
+
+      - name: Placeholder deploy host
+        run: |
+          echo "Deploy artifacts/host to your production host platform"
+          echo "Expected host URL: $PRODUCTION_HOST_URL"
+
+  smoke-test:
+    name: Smoke test production host
+    needs: deploy-host
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Verify production home
+        run: curl --fail --silent --show-error "$PRODUCTION_HOST_URL" > /dev/null
+
+      - name: Verify production catalog route
+        run: curl --fail --silent --show-error "$PRODUCTION_HOST_URL/catalog" > /dev/null
+
+      - name: Verify production profile route
+        run: curl --fail --silent --show-error "$PRODUCTION_HOST_URL/profile" > /dev/null

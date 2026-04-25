@@ -2,6 +2,16 @@
 
 React workspace that runs a host shell and multiple micro frontends inside the same repository.
 
+For a deeper walkthrough of the architecture, implementation, runtime flow, and design logic, see [docs/architecture-implementation-guide.md](docs/architecture-implementation-guide.md).
+
+If you want a faster build-from-scratch checklist, use [docs/implementation-checklist.md](docs/implementation-checklist.md).
+
+For deployment planning, use [docs/production-deployment-guide.md](docs/production-deployment-guide.md).
+
+For testing recommendations, use [docs/testing-strategy-guide.md](docs/testing-strategy-guide.md).
+
+For automation setup, use [docs/cicd-guide.md](docs/cicd-guide.md), [ci.yml](.github/workflows/ci.yml), [deploy-staging.yml](.github/workflows/deploy-staging.yml), and [deploy-production.yml](.github/workflows/deploy-production.yml).
+
 ## Goal
 
 This project shows how to build a React application where:
