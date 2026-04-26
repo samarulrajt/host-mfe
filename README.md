@@ -4,6 +4,12 @@ React workspace that runs a host shell and multiple micro frontends inside the s
 
 For a deeper walkthrough of the architecture, implementation, runtime flow, and design logic, see [docs/architecture-implementation-guide.md](docs/architecture-implementation-guide.md).
 
+If you need a client-facing step-by-step implementation plan for recreating this architecture in another project, use [docs/client-implementation-playbook.md](docs/client-implementation-playbook.md).
+
+If you want copyable starter files and a reusable project skeleton for a new client build, use [docs/client-project-bootstrap-template.md](docs/client-project-bootstrap-template.md).
+
+If you want a milestone-based rollout and onboarding plan for a client delivery team, use [docs/client-onboarding-delivery-plan.md](docs/client-onboarding-delivery-plan.md).
+
 If you want a faster build-from-scratch checklist, use [docs/implementation-checklist.md](docs/implementation-checklist.md).
 
 For deployment planning, use [docs/production-deployment-guide.md](docs/production-deployment-guide.md).
